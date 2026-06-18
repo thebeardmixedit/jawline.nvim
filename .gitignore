@@ -43,3 +43,6 @@ TheVolumeSettingsFolder
 # Lua stuff
 .luarocks/
 luacov.*
+
+# Artificially intelligent
+AGENTS.md
