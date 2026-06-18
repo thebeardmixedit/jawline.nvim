@@ -4,6 +4,15 @@ local render = require("jawline.render")
 
 local M = {}
 
+local function create_usercmds()
+	vim.api.nvim_create_user_command("JawlineRefresh", function()
+		M.refresh()
+	end, {
+		desc = "Refresh Jawline statusline",
+		force = true,
+	})
+end
+
 local function create_autocmds()
 	vim.api.nvim_create_autocmd({
 		"BufEnter",
@@ -48,24 +57,13 @@ function M.refresh(args)
 end
 
 function M.setup(user_config)
-	-- normalize user config
 	local normalized_config = config.normalize(user_config)
 
-	-- set laststatus based on statusline.global
 	vim.o.laststatus = normalized_config.statusline.global and 3 or 2
 
-	-- register user commands
-	vim.api.nvim_create_user_command("JawlineRefresh", function()
-		M.refresh()
-	end, {
-		desc = "Refresh Jawline statusline",
-		force = true,
-	})
-
-	-- register autocmds
+	create_usercmds()
 	create_autocmds()
 
-	-- run first refresh
 	M.refresh()
 
 	return M
