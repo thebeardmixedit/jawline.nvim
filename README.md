@@ -14,7 +14,7 @@ Using `vim.pack`:
 
 ```lua
 vim.pack.add({
-  "https://github.com/yourname/jawline.nvim",
+  "https://github.com/thebeardmixedit/jawline.nvim.git",
 })
 
 require("jawline").setup()
