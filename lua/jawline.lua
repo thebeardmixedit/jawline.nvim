@@ -1,5 +1,6 @@
 local config = require("jawline.config")
 local context = require("jawline.context")
+local highlights = require("jawline.highlights")
 local render = require("jawline.render")
 
 local M = {}
@@ -32,6 +33,15 @@ local function create_autocmds()
 			M.refresh()
 		end,
 	})
+
+	vim.api.nvim_create_autocmd("ColorScheme", {
+		group = vim.api.nvim_create_augroup("jawline-highlights-refresh", { clear = true }),
+		desc = "Refresh Jawline highlights",
+		callback = function()
+			highlights.apply()
+			M.refresh()
+		end,
+	})
 end
 
 function M.refresh(args)
@@ -58,6 +68,8 @@ end
 
 function M.setup(user_config)
 	local normalized_config = config.normalize(user_config)
+
+	highlights.apply()
 
 	vim.o.laststatus = normalized_config.statusline.global and 3 or 2
 

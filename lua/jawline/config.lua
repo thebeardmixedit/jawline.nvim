@@ -9,16 +9,16 @@ local defaults = {
 		global = true,
 		inherit_defaults = false,
 		left = {
-			{ "mode", style = "block" },
-			{ "filename", path = "tail" },
+			{ "mode", style = "block", hl = "JawlineMode" },
+			{ "filename", path = "tail", hl = "JawlineFilename" },
 		},
 		center = {
-			{ "macro" },
-			{ "search" },
+			{ "macro", hl = "JawlineMacro" },
+			{ "search", hl = "JawlineSearch" },
 		},
 		right = {
-			{ "filetype", icon = true },
-			{ "location" },
+			{ "filetype", icon = true, hl = "JawlineFiletype" },
+			{ "location", hl = "JawlineLocation" },
 		},
 	},
 }
