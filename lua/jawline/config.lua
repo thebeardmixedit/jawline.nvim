@@ -47,10 +47,6 @@ local component_reserved_keys = {
 	padding = true,
 }
 
--- =========================================================================================================
--- helpers
--- =========================================================================================================
-
 ---@param value any
 local function deepcopy(value)
 	return vim.deepcopy(value)
@@ -60,10 +56,6 @@ end
 local function has_user_layout(statusline)
 	return statusline.left ~= nil or statusline.center ~= nil or statusline.right ~= nil
 end
-
--- =========================================================================================================
--- normalize component values
--- =========================================================================================================
 
 ---@param value boolean|nil
 ---@param default boolean
@@ -145,10 +137,6 @@ local function pad(value, default, name)
 		right = int(value.right, default.right, name .. ".right"),
 	}
 end
-
--- =========================================================================================================
--- normalize component
--- =========================================================================================================
 
 local function normalize_component_layout(component, name)
 	return {
