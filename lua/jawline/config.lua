@@ -28,13 +28,23 @@ local defaults = {
 	},
 }
 
+local default_component_layout = {
+	padding = {
+		left = 0,
+		right = 0,
+	},
+	min_width = 0,
+	preserve_min_width_when_empty = false,
+}
+
 local section_names = { "left", "center", "right" }
 
-local component_config_keys = {
+local component_reserved_keys = {
 	enabled = true,
+	hl = true,
 	min_width = true,
 	preserve_min_width_when_empty = true,
-	hl = true,
+	padding = true,
 }
 
 -- =========================================================================================================
@@ -107,6 +117,10 @@ local function hl(value, name)
 	return deepcopy(value)
 end
 
+---@param value number|table|nil
+---@param default { left: integer, right: integer }
+---@param name string
+---@return { left: integer, right: integer }
 local function pad(value, default, name)
 	if value == nil then
 		return deepcopy(default)
@@ -126,18 +140,27 @@ local function pad(value, default, name)
 		}
 	end
 
-	local padding = {}
-
-	for _, side in ipairs({ "left", "right" }) do
-		padding[side] = int(value[side], default[side], name .. "." .. side)
-	end
-
-	return padding
+	return {
+		left = int(value.left, default.left, name .. ".left"),
+		right = int(value.right, default.right, name .. ".right"),
+	}
 end
 
 -- =========================================================================================================
 -- normalize component
 -- =========================================================================================================
+
+local function normalize_component_layout(component, name)
+	return {
+		padding = pad(component.padding, default_component_layout.padding, "statusline." .. name .. ".padding"),
+		min_width = int(component.min_width, default_component_layout.min_width, "statusline." .. name .. ".min_width"),
+		preserve_min_width_when_empty = bool(
+			component.preserve_min_width_when_empty,
+			default_component_layout.preserve_min_width_when_empty,
+			"statusline." .. name .. ".preserve_min_width_when_empty"
+		),
+	}
+end
 
 local function normalize_component(component)
 	if type(component) == "string" then
@@ -146,9 +169,8 @@ local function normalize_component(component)
 		return {
 			name = component,
 			enabled = true,
-			min_width = 0,
-			preserve_min_width_when_empty = false,
 			hl = nil,
+			layout = deepcopy(default_component_layout),
 			opts = {},
 		}
 	end
@@ -170,7 +192,7 @@ local function normalize_component(component)
 			error("Invalid component option index '" .. key .. "' for component '" .. name .. "'")
 		end
 
-		if key ~= 1 and not component_config_keys[key] then
+		if key ~= 1 and not component_reserved_keys[key] then
 			opts[key] = deepcopy(value)
 		end
 	end
@@ -178,13 +200,8 @@ local function normalize_component(component)
 	return {
 		name = name,
 		enabled = bool(component.enabled, true, "statusline." .. name .. ".enabled"),
-		min_width = int(component.min_width, 0, "statusline." .. name .. ".min_width"),
-		preserve_min_width_when_empty = bool(
-			component.preserve_min_width_when_empty,
-			false,
-			"statusline." .. name .. ".preserve_min_width_when_empty"
-		),
 		hl = hl(component.hl, "statusline." .. name .. ".hl"),
+		layout = normalize_component_layout(component, name),
 		opts = opts,
 	}
 end

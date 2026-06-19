@@ -16,6 +16,10 @@ local function apply_line_padding(statusline, padding)
 	return spaces(padding.left) .. statusline .. spaces(padding.right)
 end
 
+local function apply_component_padding(value, padding)
+	return spaces(padding.left) .. value .. spaces(padding.right)
+end
+
 local function pad_to_min_width(value, min_width)
 	local width = display_width(value)
 
@@ -23,7 +27,7 @@ local function pad_to_min_width(value, min_width)
 		return value
 	end
 
-	return value .. string.rep(" ", min_width - width)
+	return value .. spaces(min_width - width)
 end
 
 local function apply_highlight(value, hl)
@@ -39,11 +43,19 @@ local function apply_highlight(value, hl)
 end
 
 local function empty_component(spec)
-	if not spec.preserve_min_width_when_empty then
+	local layout = spec.layout
+
+	if not layout.preserve_min_width_when_empty then
 		return ""
 	end
 
-	local value = string.rep(" ", spec.min_width)
+	local width = math.max(layout.min_width, layout.padding.left + layout.padding.right)
+
+	if width == 0 then
+		return ""
+	end
+
+	local value = spaces(width)
 
 	return apply_highlight(value, spec.hl)
 end
@@ -69,7 +81,8 @@ local function draw_component(context, spec)
 		return empty_component(spec)
 	end
 
-	value = pad_to_min_width(value, spec.min_width)
+	value = apply_component_padding(value, spec.layout.padding)
+	value = pad_to_min_width(value, spec.layout.min_width)
 	value = escape(value)
 	value = apply_highlight(value, spec.hl)
 
@@ -87,7 +100,7 @@ local function section(context, spacing, specs)
 		end
 	end
 
-	return table.concat(parts, string.rep(" ", spacing))
+	return table.concat(parts, spaces(spacing))
 end
 
 ---@param context table
