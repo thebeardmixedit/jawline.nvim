@@ -10,12 +10,4 @@ In active development. Not recommended for production use yet.
 
 ## Installation
 
-Using `vim.pack`:
-
-```lua
-vim.pack.add({
-  "https://github.com/thebeardmixedit/jawline.nvim.git",
-})
-
-require("jawline").setup()
-```
+Installation instructions will be added once the core API stabilizes.
