@@ -8,6 +8,11 @@ local defaults = {
 	statusline = {
 		global = true,
 		inherit_defaults = false,
+		spacing = 1,
+		padding = {
+			left = 1,
+			right = 1,
+		},
 		left = {
 			{ "mode", style = "block", hl = "JawlineMode" },
 			{ "filename", path = "tail", hl = "JawlineFilename" },
@@ -102,6 +107,34 @@ local function hl(value, name)
 	return deepcopy(value)
 end
 
+local function pad(value, default, name)
+	if value == nil then
+		return deepcopy(default)
+	end
+
+	assert(
+		type(value) == "number" or type(value) == "table",
+		"Invalid " .. name .. " configuration type '" .. type(value) .. "', must be a number or table"
+	)
+
+	if type(value) == "number" then
+		local amount = int(value, 0, name)
+
+		return {
+			left = amount,
+			right = amount,
+		}
+	end
+
+	local padding = {}
+
+	for _, side in ipairs({ "left", "right" }) do
+		padding[side] = int(value[side], default[side], name .. "." .. side)
+	end
+
+	return padding
+end
+
 -- =========================================================================================================
 -- normalize component
 -- =========================================================================================================
@@ -190,13 +223,17 @@ local function normalize_statusline(user_statusline)
 	local inherit_defaults =
 		bool(user_statusline.inherit_defaults, defaults.statusline.inherit_defaults, "statusline.inherit_defaults")
 
-	local should_use_defaults = inherit_defaults or not has_user_layout(user_statusline)
-
 	local global = bool(user_statusline.global, defaults.statusline.global, "statusline.global")
+	local spacing = int(user_statusline.spacing, defaults.statusline.spacing, "statusline.spacing")
+	local padding = pad(user_statusline.padding, defaults.statusline.padding, "statusline.padding")
+
+	local should_use_defaults = inherit_defaults or not has_user_layout(user_statusline)
 
 	local statusline = {
 		global = global,
 		inherit_defaults = inherit_defaults,
+		spacing = spacing,
+		padding = padding,
 		left = {},
 		center = {},
 		right = {},

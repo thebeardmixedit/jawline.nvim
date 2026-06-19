@@ -8,6 +8,14 @@ local function display_width(value)
 	return vim.fn.strdisplaywidth(value)
 end
 
+local function spaces(count)
+	return string.rep(" ", count)
+end
+
+local function apply_line_padding(statusline, padding)
+	return spaces(padding.left) .. statusline .. spaces(padding.right)
+end
+
 local function pad_to_min_width(value, min_width)
 	local width = display_width(value)
 
@@ -68,7 +76,7 @@ local function draw_component(context, spec)
 	return value
 end
 
-local function section(context, specs)
+local function section(context, spacing, specs)
 	local parts = {}
 
 	for _, spec in ipairs(specs) do
@@ -79,19 +87,25 @@ local function section(context, specs)
 		end
 	end
 
-	return table.concat(parts, " ")
+	return table.concat(parts, string.rep(" ", spacing))
 end
 
 ---@param context table
 ---@param config table
 return function(context, config)
-	local left = section(context, config.left)
-	local center = section(context, config.center)
-	local right = section(context, config.right)
+	local left = section(context, config.spacing, config.left)
+	local center = section(context, config.spacing, config.center)
+	local right = section(context, config.spacing, config.right)
+
+	local line
 
 	if center ~= "" then
-		return table.concat({ left, "%=", center, "%=", right }, " ")
+		line = left .. "%=" .. center .. "%=" .. right
+	else
+		line = left .. "%=" .. right
 	end
 
-	return table.concat({ left, "%=", right }, " ")
+	line = apply_line_padding(line, config.padding)
+
+	return line
 end
