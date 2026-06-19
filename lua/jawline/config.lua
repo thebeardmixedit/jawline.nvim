@@ -1,5 +1,3 @@
--- normalize user config and provide defaults
-
 local M = {}
 
 local normalized, user
