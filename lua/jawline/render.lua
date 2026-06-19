@@ -20,14 +20,27 @@ local function apply_component_padding(value, padding)
 	return spaces(padding.left) .. value .. spaces(padding.right)
 end
 
-local function pad_to_min_width(value, min_width)
+local function apply_min_width(value, min_width, justify)
 	local width = display_width(value)
 
 	if width >= min_width then
 		return value
 	end
 
-	return value .. spaces(min_width - width)
+	local diff = min_width - width
+
+	if justify == "left" then
+		return value .. spaces(diff)
+	end
+
+	if justify == "right" then
+		return spaces(diff) .. value
+	end
+
+	local left = math.floor(diff / 2)
+	local right = diff - left
+
+	return spaces(left) .. value .. spaces(right)
 end
 
 local function apply_highlight(value, hl)
@@ -82,7 +95,7 @@ local function draw_component(context, spec)
 	end
 
 	value = apply_component_padding(value, spec.layout.padding)
-	value = pad_to_min_width(value, spec.layout.min_width)
+	value = apply_min_width(value, spec.layout.min_width, spec.layout.justify)
 	value = escape(value)
 	value = apply_highlight(value, spec.hl)
 

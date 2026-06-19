@@ -1,3 +1,6 @@
+local deepcopy = require("jawline.utils.deepcopy")
+local validate = require("jawline.utils.validate")
+
 local M = {}
 
 local normalized, user
@@ -32,6 +35,7 @@ local default_component_layout = {
 		right = 0,
 	},
 	min_width = 0,
+	justify = "left",
 	preserve_min_width_when_empty = false,
 }
 
@@ -43,104 +47,32 @@ local component_reserved_keys = {
 	min_width = true,
 	preserve_min_width_when_empty = true,
 	padding = true,
+	justify = true,
 }
-
----@param value any
-local function deepcopy(value)
-	return vim.deepcopy(value)
-end
 
 ---@param statusline table
 local function has_user_layout(statusline)
 	return statusline.left ~= nil or statusline.center ~= nil or statusline.right ~= nil
 end
 
----@param value boolean|nil
----@param default boolean
----@param name string
----@return boolean
-local function bool(value, default, name)
-	if value == nil then
-		return default
-	end
-
-	assert(
-		type(value) == "boolean",
-		"Invalid " .. name .. " configuration type '" .. type(value) .. "', must be a boolean"
-	)
-
-	return value
-end
-
----@param value integer|nil
----@param default integer
----@param name string
----@return number
-local function int(value, default, name)
-	if value == nil then
-		return default
-	end
-
-	assert(
-		type(value) == "number",
-		"Invalid " .. name .. " configuration type '" .. type(value) .. "', must be a number"
-	)
-
-	assert(value == math.floor(value), "Invalid " .. name .. " value '" .. value .. "', must be an integer")
-	assert(value >= 0, "Invalid " .. name .. " value, must be >= 0")
-
-	return value
-end
-
----@param value string|table|nil
----@param name string
-local function hl(value, name)
-	if value == nil then
-		return nil
-	end
-
-	assert(
-		type(value) == "string" or type(value) == "table",
-		"Invalid " .. name .. " configuration type '" .. type(value) .. "', must be a string or table"
-	)
-
-	return deepcopy(value)
-end
-
----@param value number|table|nil
----@param default { left: integer, right: integer }
----@param name string
----@return { left: integer, right: integer }
-local function pad(value, default, name)
-	if value == nil then
-		return deepcopy(default)
-	end
-
-	assert(
-		type(value) == "number" or type(value) == "table",
-		"Invalid " .. name .. " configuration type '" .. type(value) .. "', must be a number or table"
-	)
-
-	if type(value) == "number" then
-		local amount = int(value, 0, name)
-
-		return {
-			left = amount,
-			right = amount,
-		}
-	end
-
-	return {
-		left = int(value.left, default.left, name .. ".left"),
-		right = int(value.right, default.right, name .. ".right"),
-	}
-end
-
 local function normalize_component_layout(component, name)
 	return {
-		padding = pad(component.padding, default_component_layout.padding, "statusline." .. name .. ".padding"),
-		min_width = int(component.min_width, default_component_layout.min_width, "statusline." .. name .. ".min_width"),
-		preserve_min_width_when_empty = bool(
+		padding = validate.pad(
+			component.padding,
+			default_component_layout.padding,
+			"statusline." .. name .. ".padding"
+		),
+		min_width = validate.int(
+			component.min_width,
+			default_component_layout.min_width,
+			"statusline." .. name .. ".min_width"
+		),
+		justify = validate.justify(
+			component.justify,
+			default_component_layout.justify,
+			"statusline." .. name .. ".justify"
+		),
+		preserve_min_width_when_empty = validate.bool(
 			component.preserve_min_width_when_empty,
 			default_component_layout.preserve_min_width_when_empty,
 			"statusline." .. name .. ".preserve_min_width_when_empty"
@@ -185,8 +117,8 @@ local function normalize_component(component)
 
 	return {
 		name = name,
-		enabled = bool(component.enabled, true, "statusline." .. name .. ".enabled"),
-		hl = hl(component.hl, "statusline." .. name .. ".hl"),
+		enabled = validate.bool(component.enabled, true, "statusline." .. name .. ".enabled"),
+		hl = validate.hl(component.hl, "statusline." .. name .. ".hl"),
 		layout = normalize_component_layout(component, name),
 		opts = opts,
 	}
@@ -223,12 +155,15 @@ local function normalize_statusline(user_statusline)
 			.. "', must be a statusline configuration table"
 	)
 
-	local inherit_defaults =
-		bool(user_statusline.inherit_defaults, defaults.statusline.inherit_defaults, "statusline.inherit_defaults")
+	local inherit_defaults = validate.bool(
+		user_statusline.inherit_defaults,
+		defaults.statusline.inherit_defaults,
+		"statusline.inherit_defaults"
+	)
 
-	local global = bool(user_statusline.global, defaults.statusline.global, "statusline.global")
-	local spacing = int(user_statusline.spacing, defaults.statusline.spacing, "statusline.spacing")
-	local padding = pad(user_statusline.padding, defaults.statusline.padding, "statusline.padding")
+	local global = validate.bool(user_statusline.global, defaults.statusline.global, "statusline.global")
+	local spacing = validate.int(user_statusline.spacing, defaults.statusline.spacing, "statusline.spacing")
+	local padding = validate.pad(user_statusline.padding, defaults.statusline.padding, "statusline.padding")
 
 	local should_use_defaults = inherit_defaults or not has_user_layout(user_statusline)
 
