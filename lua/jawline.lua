@@ -1,9 +1,14 @@
 local config = require("jawline.config")
 local context = require("jawline.context")
 local highlights = require("jawline.highlights")
+local components = require("jawline.components")
 local render = require("jawline.render")
 
 local M = {}
+
+local state = {
+	config = nil,
+}
 
 local function create_usercmds()
 	vim.api.nvim_create_user_command("JawlineRefresh", function()
@@ -45,18 +50,17 @@ local function create_autocmds()
 end
 
 function M.refresh(args)
-	local normalized_config = config.get("normalized")
+	local normalized_config = state.config
+
 	if not normalized_config then
 		normalized_config = config.normalize()
+		components.attach(normalized_config.statusline)
+		state.config = normalized_config
 	end
 
-	-- create statusline context
 	local refresh_context = context.create(args)
-
-	-- get statusline string from renderer
 	local statusline = render(refresh_context, normalized_config.statusline)
 
-	-- write string to vim.o.statusline / vim.wo.statusline
 	if normalized_config.statusline.global then
 		vim.o.statusline = statusline
 	else
@@ -68,6 +72,8 @@ end
 
 function M.setup(user_config)
 	local normalized_config = config.normalize(user_config)
+	components.attach(normalized_config.statusline)
+	state.config = normalized_config
 
 	highlights.apply()
 

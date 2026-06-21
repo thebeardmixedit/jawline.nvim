@@ -1,5 +1,3 @@
-local components = require("jawline.components")
-
 local function escape(value)
 	return value:gsub("%%", "%%%%")
 end
@@ -74,22 +72,15 @@ local function empty_component(spec)
 end
 
 local function write_component(context, spec)
-	local component = components[spec.name]
+	local component = spec.component
 
-	assert(component, "Unknown Jawline component '" .. spec.name .. "'")
+	assert(component, "No component attached for Jawline component '" .. spec.name .. "'")
 
 	if type(component) == "function" then
 		return component(context, spec)
 	end
 
-	assert(
-		type(component) == "table" and type(component.write) == "function",
-		"Invalid Jawline component '" .. spec.name .. "', must be a function or component class"
-	)
-
-	local instance = component(spec)
-
-	return instance:write(context)
+	return component:write(context)
 end
 
 local function draw_component(context, spec)
