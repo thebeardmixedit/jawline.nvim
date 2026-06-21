@@ -1,22 +1,6 @@
 local M = {}
 
-local modes = {
-	n = "NORMAL",
-	i = "INSERT",
-	v = "VISUAL",
-	V = "V-LINE",
-	["\22"] = "V-BLOCK",
-	c = "COMMAND",
-	R = "REPLACE",
-	t = "TERMINAL",
-	s = "SELECT",
-	S = "S-LINE",
-	["\19"] = "S-BLOCK",
-}
-
-function M.mode(context)
-	return modes[context.mode] or context.mode:upper()
-end
+M.mode = require("jawline.components.mode")
 
 function M.filename(context, spec)
 	local filename = context.filename

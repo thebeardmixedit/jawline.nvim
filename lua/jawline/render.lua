@@ -73,16 +73,31 @@ local function empty_component(spec)
 	return apply_highlight(value, spec.hl)
 end
 
+local function write_component(context, spec)
+	local component = components[spec.name]
+
+	assert(component, "Unknown Jawline component '" .. spec.name .. "'")
+
+	if type(component) == "function" then
+		return component(context, spec)
+	end
+
+	assert(
+		type(component) == "table" and type(component.write) == "function",
+		"Invalid Jawline component '" .. spec.name .. "', must be a function or component class"
+	)
+
+	local instance = component(spec)
+
+	return instance:write(context)
+end
+
 local function draw_component(context, spec)
 	if not spec.enabled then
 		return empty_component(spec)
 	end
 
-	local component = components[spec.name]
-
-	assert(component, "Unknown Jawline component '" .. spec.name .. "'")
-
-	local value = component(context, spec)
+	local value = write_component(context, spec)
 
 	if value == nil then
 		value = ""

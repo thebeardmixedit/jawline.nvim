@@ -7,9 +7,25 @@ vim.opt.laststatus = 3
 
 vim.g.mapleader = " "
 
-vim.keymap.set("n", "<leader>e", "<cmd>Explore<CR>")
+-- =========================================================================================================
+-- basics
+-- =========================================================================================================
 
 vim.keymap.set("n", "<A-q>", "<cmd>confirm qall<CR>")
+vim.keymap.set("n", "<leader>e", "<cmd>Explore<CR>")
+vim.keymap.set("n", "<leader>m", "<cmd>messages<CR>")
+
+-- =========================================================================================================
+-- persistent jawline dev controls
+-- =========================================================================================================
+
+vim.keymap.set("n", "<leader>jr", function()
+	print(require("jawline").refresh())
+end, { desc = "Jawline: refresh" })
+
+vim.keymap.set("n", "<leader>js", function()
+	print(vim.o.statusline)
+end, { desc = "Jawline: print statusline" })
 
 vim.keymap.set("n", "<leader>jc", function()
 	print(vim.inspect(require("jawline.context").create()))
@@ -27,12 +43,24 @@ vim.keymap.set("n", "<leader>ju", function()
 	print(vim.inspect(require("jawline").get_config("user")))
 end, { desc = "Jawline: print user config" })
 
-vim.keymap.set("n", "<leader>jr", function()
-	print(require("jawline").refresh())
-end, { desc = "Jawline: refresh" })
+vim.keymap.set("n", "<leader>jx", function()
+	for name, _ in pairs(package.loaded) do
+		if name:match("^jawline") then
+			package.loaded[name] = nil
+		end
+	end
 
-vim.keymap.set("n", "<leader>js", function()
-	print(vim.o.statusline)
-end, { desc = "Jawline: print statusline" })
+	require("jawline").setup()
+
+	print("Jawline reloaded")
+end, { desc = "Jawline: reload plugin" })
+
+-- =========================================================================================================
+-- temporary scratch tests
+-- =========================================================================================================
+
+-- =========================================================================================================
+-- setup
+-- =========================================================================================================
 
 require("jawline").setup()
