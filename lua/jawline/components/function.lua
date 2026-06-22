@@ -8,7 +8,7 @@ function Function:init(spec, fn)
 end
 
 function Function:write(context)
-	return self.fn(context, self.opts, self.spec)
+	return self.fn(context, self.opts)
 end
 
 return Function
