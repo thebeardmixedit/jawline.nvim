@@ -76,10 +76,6 @@ local function write_component(context, spec)
 
 	assert(component, "No component attached for Jawline component '" .. spec.name .. "'")
 
-	if type(component) == "function" then
-		return component(context, spec)
-	end
-
 	return component:write(context)
 end
 
