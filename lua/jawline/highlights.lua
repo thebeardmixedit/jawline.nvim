@@ -1,36 +1,55 @@
 local M = {}
 
----@param args { groups: table<string, vim.api.keyset.highlight> }
-local function set_hl(args)
-	assert(type(args.groups) == "table", "Highlight groups must be a table")
+local defaults = {
+	Normal = { link = "StatusLine" },
+	Inactive = { link = "StatusLineNC" },
+	Accent = { link = "Directory" },
+	Muted = { link = "Comment" },
+	Info = { link = "DiagnosticInfo" },
+	Warn = { link = "DiagnosticWarn" },
+	Error = { link = "DiagnosticError" },
+	Success = { link = "DiagnosticOk" },
 
-	local groups = args.groups
+	Mode = { link = "JawlineAccent" },
+	Filename = { link = "JawlineNormal" },
+	Modified = { link = "JawlineWarn" },
+	Filetype = { link = "JawlineMuted" },
+	Location = { link = "JawlineMuted" },
+	Macro = { link = "JawlineWarn" },
+	Search = { link = "JawlineInfo" },
+}
 
-	for group, opts in pairs(groups) do
-		group = "Jawline" .. group
+local function prefixed(group)
+	if group:match("^Jawline") then
+		return group
+	end
 
-		vim.api.nvim_set_hl(
-			0,
-			group,
-			vim.tbl_extend("force", {
-				default = true,
-			}, opts)
-		)
+	return "Jawline" .. group
+end
+
+---@param groups table<string, vim.api.keyset.highlight>
+---@param opts? { default?: boolean }
+local function set_groups(groups, opts)
+	assert(type(groups) == "table", "Highlight groups must be a table")
+
+	opts = opts or {}
+
+	for group, hl in pairs(groups) do
+		group = prefixed(group)
+
+		if opts.default then
+			hl = vim.tbl_extend("force", { default = true }, hl)
+		end
+
+		vim.api.nvim_set_hl(0, group, hl)
 	end
 end
 
-function M.apply()
-	set_hl({
-		groups = {
-			Mode = { link = "StatusLine" },
-			Filename = { link = "StatusLine" },
-			Filetype = { link = "StatusLine" },
-			Location = { link = "StatusLine" },
-			Macro = { link = "WarningMsg" },
-			Search = { link = "Search" },
-			Muted = { link = "StatusLineNC" },
-		},
-	})
+function M.apply(theme)
+	theme = theme or {}
+
+	set_groups(defaults, { default = true })
+	set_groups(theme.groups or {})
 end
 
 return M

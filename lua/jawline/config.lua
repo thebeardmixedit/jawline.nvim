@@ -17,6 +17,7 @@ local defaults = {
 		left = {
 			{ "mode", style = "block", hl = "JawlineMode" },
 			{ "filename", path = "tail", hl = "JawlineFilename" },
+			{ "modified", hl = "JawlineModified" },
 		},
 		center = {
 			{ "macro", hl = "JawlineMacro" },
