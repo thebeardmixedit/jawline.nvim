@@ -54,7 +54,7 @@ function M.refresh(args)
 
 	if not normalized_config then
 		normalized_config = config.normalize()
-		components.attach(normalized_config.statusline)
+		components.attach(normalized_config)
 		state.config = normalized_config
 	end
 
@@ -72,7 +72,7 @@ end
 
 function M.setup(user_config)
 	local normalized_config = config.normalize(user_config)
-	components.attach(normalized_config.statusline)
+	components.attach(normalized_config)
 	state.config = normalized_config
 
 	highlights.apply()

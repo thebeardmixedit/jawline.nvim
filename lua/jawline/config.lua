@@ -55,6 +55,32 @@ local function has_user_layout(statusline)
 	return statusline.left ~= nil or statusline.center ~= nil or statusline.right ~= nil
 end
 
+local function normalize_user_components(user_components)
+	if user_components == nil then
+		return {}
+	end
+
+	assert(
+		type(user_components) == "table",
+		"Invalid components configuration type '" .. type(user_components) .. "', must be a table"
+	)
+
+	local normalized_user_components = {}
+
+	for name, component in pairs(user_components) do
+		assert(type(name) == "string", "Invalid custom component name type '" .. type(name) .. "', must be a string")
+
+		assert(
+			type(component) == "function" or type(component) == "table",
+			"Invalid custom component '" .. name .. "', must be a function or component class"
+		)
+
+		normalized_user_components[name] = component
+	end
+
+	return normalized_user_components
+end
+
 local function normalize_component_layout(component, name)
 	return {
 		padding = validate.pad(
@@ -208,12 +234,13 @@ function M.normalize(user_config)
 	local user_config_copy = deepcopy(user_config)
 	local normalized_config = deepcopy(user_config)
 
+	normalized_config.components = normalize_user_components(user_config.components)
 	normalized_config.statusline = normalize_statusline(user_config.statusline)
 
 	user = user_config_copy
-	normalized = normalized_config
+	normalized = deepcopy(normalized_config)
 
-	return normalized
+	return normalized_config
 end
 
 ---@param config_name? "default"|"normalized"|"user"

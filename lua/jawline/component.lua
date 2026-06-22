@@ -7,7 +7,6 @@ function Component:init(spec)
 
 	self.name = spec.name
 	self.opts = spec.opts or {}
-	self.spec = spec
 end
 
 function Component:write()

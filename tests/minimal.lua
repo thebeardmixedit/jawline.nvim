@@ -63,4 +63,12 @@ end, { desc = "Jawline: reload plugin" })
 -- setup
 -- =========================================================================================================
 
+local Component = require("jawline.component")
+
+local Beard = Component:extend()
+
+function Beard:write(context)
+	return self.opts.text or context.mode
+end
+
 require("jawline").setup()
