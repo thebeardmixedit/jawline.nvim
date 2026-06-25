@@ -43,7 +43,15 @@ local function create_autocmds()
 		group = vim.api.nvim_create_augroup("jawline-highlights-refresh", { clear = true }),
 		desc = "Refresh Jawline highlights",
 		callback = function()
-			highlights.apply()
+			local normalized_config = state.config
+
+			if normalized_config then
+				highlights.apply(normalized_config.theme)
+				highlights.attach(normalized_config.statusline)
+			else
+				highlights.apply()
+			end
+
 			M.refresh()
 		end,
 	})
@@ -54,7 +62,12 @@ function M.refresh(args)
 
 	if not normalized_config then
 		normalized_config = config.normalize()
+
 		components.attach(normalized_config)
+
+		highlights.apply(normalized_config.theme)
+		highlights.attach(normalized_config.statusline)
+
 		state.config = normalized_config
 	end
 
@@ -72,10 +85,13 @@ end
 
 function M.setup(user_config)
 	local normalized_config = config.normalize(user_config)
-	components.attach(normalized_config)
-	state.config = normalized_config
 
-	highlights.apply()
+	components.attach(normalized_config)
+
+	highlights.apply(normalized_config.theme)
+	highlights.attach(normalized_config.statusline)
+
+	state.config = normalized_config
 
 	vim.o.laststatus = normalized_config.statusline.global and 3 or 2
 

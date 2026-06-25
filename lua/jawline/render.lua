@@ -46,11 +46,7 @@ local function apply_highlight(value, hl)
 		return value
 	end
 
-	if type(hl) == "string" then
-		return "%#" .. hl .. "#" .. value .. "%*"
-	end
-
-	return value
+	return "%#" .. hl .. "#" .. value .. "%*"
 end
 
 local function empty_component(spec)
@@ -68,7 +64,7 @@ local function empty_component(spec)
 
 	local value = spaces(width)
 
-	return apply_highlight(value, spec.hl)
+	return apply_highlight(value, spec.hl.resolved)
 end
 
 local function write_component(context, spec)
@@ -99,7 +95,7 @@ local function draw_component(context, spec)
 	value = apply_component_padding(value, spec.layout.padding)
 	value = apply_min_width(value, spec.layout.min_width, spec.layout.justify)
 	value = escape(value)
-	value = apply_highlight(value, spec.hl)
+	value = apply_highlight(value, spec.hl.resolved)
 
 	return value
 end

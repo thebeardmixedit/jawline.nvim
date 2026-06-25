@@ -60,7 +60,10 @@ end
 ---@param name string
 function M.hl(value, name)
 	if value == nil then
-		return nil
+		return {
+			value = nil,
+			resolved = nil,
+		}
 	end
 
 	assert(
@@ -68,7 +71,10 @@ function M.hl(value, name)
 		"Invalid " .. name .. " configuration type '" .. type(value) .. "', must be a string or table"
 	)
 
-	return deepcopy(value)
+	return {
+		value = deepcopy(value),
+		resolved = nil,
+	}
 end
 
 ---@param value? number|table

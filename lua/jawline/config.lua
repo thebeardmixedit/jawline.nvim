@@ -56,6 +56,27 @@ local function has_user_layout(statusline)
 	return statusline.left ~= nil or statusline.center ~= nil or statusline.right ~= nil
 end
 
+local function normalize_theme(theme)
+	if theme == nil then
+		return {
+			groups = {},
+		}
+	end
+
+	assert(
+		type(theme) == "table",
+		"Invalid theme configuration type '" .. type(theme) .. "', must be a theme configuration table"
+	)
+
+	local groups = theme.groups or {}
+
+	assert(type(groups) == "table", "Invalid theme.groups configuration type '" .. type(groups) .. "', must be a table")
+
+	return {
+		groups = deepcopy(groups),
+	}
+end
+
 local function normalize_user_components(user_components)
 	if user_components == nil then
 		return {}
@@ -114,7 +135,7 @@ local function normalize_component(component)
 		return {
 			name = component,
 			enabled = true,
-			hl = nil,
+			hl = validate.hl(nil, "statusline." .. component .. ".hl"),
 			layout = deepcopy(default_component_layout),
 			opts = {},
 		}
@@ -236,6 +257,7 @@ function M.normalize(user_config)
 	local normalized_config = deepcopy(user_config)
 
 	normalized_config.components = normalize_user_components(user_config.components)
+	normalized_config.theme = normalize_theme(user_config.theme)
 	normalized_config.statusline = normalize_statusline(user_config.statusline)
 
 	user = user_config_copy
