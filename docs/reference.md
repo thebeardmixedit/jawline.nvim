@@ -326,4 +326,4 @@ lint/format/type-check configuration. No minimum Neovim version or compatibility
 matrix is declared. Describe checks actually performed without treating this
 configuration as automated coverage.
 
-See [AGENTS.md](../AGENTS.md) for the project authority and execution workflow.
+See [AGENTS.md](../AGENTS.md) for repository-specific agent guidance.
